@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error('ไม่สามารถโหลดข้อมูลข้อสอบได้');
             }
-            allQuestions = await response.json();
+            const data = await response.json();
+            allQuestions = data.questions;
         } catch (error) {
             console.error(error);
             questionText.innerHTML = '⚠️ เกิดข้อผิดพลาดในการโหลดข้อสอบ กรุณาตรวจสอบไฟล์ questions.json';
@@ -83,26 +84,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const shouldShuffle = shuffleCheckbox.checked;
         
         // Prepare questions
-        currentQuestions = [...allQuestions];
+        // Prepare questions
+        currentQuestions = allQuestions.map(q => {
+            const optionsArray = Object.keys(q.options).map(key => ({
+                id: key,
+                text: q.options[key],
+                isCorrect: key === q.correct_answer
+            }));
+            return {
+                ...q,
+                optionsArray: optionsArray
+            };
+        });
+
         if (shouldShuffle) {
             currentQuestions = shuffleArray(currentQuestions);
-            // Optionally shuffle options within questions
             currentQuestions = currentQuestions.map(q => {
-                const newQ = { ...q };
-                // Keep the correct option logic intact
-                const optionsWithCorrectness = newQ.options.map(opt => ({
-                    ...opt,
-                    isCorrect: opt.id === newQ.answer
-                }));
-                const shuffledOptions = shuffleArray(optionsWithCorrectness);
-                // Reassign A, B, C, D
+                let shuffledOptions = shuffleArray(q.optionsArray);
                 const labels = ['A', 'B', 'C', 'D'];
-                newQ.options = shuffledOptions.map((opt, idx) => {
+                shuffledOptions = shuffledOptions.map((opt, idx) => {
                     const newId = labels[idx];
-                    if (opt.isCorrect) newQ.answer = newId;
-                    return { id: newId, text: opt.text };
+                    if (opt.isCorrect) q.correct_answer = newId;
+                    return { ...opt, id: newId };
                 });
-                return newQ;
+                return { ...q, optionsArray: shuffledOptions };
             });
         }
 
@@ -181,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Render Options
         optionsContainer.innerHTML = '';
-        q.options.forEach(opt => {
+        q.optionsArray.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
             btn.innerHTML = `
@@ -207,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedOptionId) return;
 
         const q = currentQuestions[currentQuestionIndex];
-        const isCorrect = selectedOptionId === q.answer;
+        const isCorrect = selectedOptionId === q.correct_answer;
         
         // Disable all options
         const allOptionBtns = document.querySelectorAll('.option-btn');
@@ -215,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
             const label = btn.querySelector('.option-label').textContent;
             
-            if (label === q.answer) {
+            if (label === q.correct_answer) {
                 btn.classList.add('correct');
             } else if (label === selectedOptionId && !isCorrect) {
                 btn.classList.add('incorrect');
@@ -230,8 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Show Explanation
-        expCorrectText.innerHTML = q.explanation.correct;
-        expIncorrectText.innerHTML = q.explanation.incorrect;
+        // Show Explanation
+        expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง:</strong> ${q.explanation.correct_reason}`;
+        
+        let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
+        if (q.explanation.incorrect_reasons) {
+            for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
+                incorrectHtml += `<li><strong>${key}</strong>: ${reason}</li>`;
+            }
+        }
+        incorrectHtml += '</ul>';
+        expIncorrectText.innerHTML = incorrectHtml;
         explanationPanel.classList.remove('hidden');
 
         // Swap buttons
