@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project+ Exam Simulator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Elements for Glassmorphism -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="container">
+        
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="glass-panel active">
+            <div class="logo-container">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h1>Project+ Exam Simulator</h1>
+            <p class="subtitle">ระบบฝึกทำข้อสอบเสมือนจริง</p>
+
+            <div class="settings-group">
+                <label>
+                    <i class="fa-regular fa-clock"></i> เวลาทำข้อสอบ (นาที)
+                </label>
+                <input type="number" id="time-limit" value="30" min="1" max="180">
+            </div>
+
+            <div class="settings-group checkbox-group">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="shuffle-questions" checked>
+                    <span class="slider round"></span>
+                </label>
+                <span><i class="fa-solid fa-shuffle"></i> สุ่มลำดับคำถามและคำตอบ</span>
+            </div>
+
+            <button id="start-btn" class="primary-btn">
+                เริ่มทำข้อสอบ <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Exam Screen -->
+        <div id="exam-screen" class="glass-panel hidden">
+            <div class="exam-header">
+                <div class="progress-container">
+                    <div class="progress-text">ข้อที่ <span id="current-q-num">1</span> / <span id="total-q-num">10</span></div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+                <div class="timer-container">
+                    <i class="fa-regular fa-clock"></i> <span id="timer-display">30:00</span>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <h2 id="question-text">กำลังโหลดคำถาม...</h2>
+            </div>
+
+            <div class="options-container" id="options-container">
+                <!-- Options will be injected here via JS -->
+            </div>
+
+            <div class="actions-container">
+                <button id="submit-btn" class="primary-btn" disabled>
+                    ตรวจคำตอบ <i class="fa-solid fa-check"></i>
+                </button>
+                <button id="next-btn" class="secondary-btn hidden">
+                    ข้อถัดไป <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Explanation Panel -->
+            <div id="explanation-panel" class="explanation-panel hidden">
+                <div class="explanation-header">
+                    <i class="fa-solid fa-circle-info"></i> คำอธิบาย
+                </div>
+                <div class="explanation-content">
+                    <div class="correct-exp">
+                        <strong><i class="fa-solid fa-check-circle"></i> ทำไมถึงถูก:</strong>
+                        <p id="exp-correct-text"></p>
+                    </div>
+                    <div class="incorrect-exp">
+                        <strong><i class="fa-solid fa-times-circle"></i> ทำไมข้ออื่นถึงผิด:</strong>
+                        <p id="exp-incorrect-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="glass-panel hidden">
+            <div class="results-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h1>สรุปผลคะแนน</h1>
+            
+            <div class="score-display">
+                <div class="score-circle">
+                    <span id="final-score">0</span><span class="score-total">/<span id="final-total">0</span></span>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box correct">
+                    <i class="fa-solid fa-check"></i>
+                    <div class="stat-value" id="stat-correct">0</div>
+                    <div class="stat-label">ตอบถูก</div>
+                </div>
+                <div class="stat-box incorrect">
+                    <i class="fa-solid fa-xmark"></i>
+                    <div class="stat-value" id="stat-incorrect">0</div>
+                    <div class="stat-label">ตอบผิด</div>
+                </div>
+                <div class="stat-box time">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <div class="stat-value" id="stat-time">00:00</div>
+                    <div class="stat-label">เวลาที่ใช้</div>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="primary-btn">
+                <i class="fa-solid fa-rotate-right"></i> ทำข้อสอบอีกครั้ง
+            </button>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
