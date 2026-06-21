@@ -55,11 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await response.json();
             allQuestions = data.questions;
+            console.log('โหลดข้อสอบจาก question.json สำเร็จ');
         } catch (error) {
-            console.error(error);
-            questionText.innerHTML = '⚠️ เกิดข้อผิดพลาดในการโหลดข้อสอบ กรุณาตรวจสอบไฟล์ question.json';
-            startBtn.disabled = true;
-            startBtn.innerHTML = 'ไม่พบข้อมูลข้อสอบ';
+            console.warn('ไม่สามารถโหลด question.json ได้, กำลังพยายามใช้ข้อมูลสำรอง:', error);
+            if (window.examData && window.examData.questions) {
+                allQuestions = window.examData.questions;
+                console.log('โหลดข้อสอบจาก question-data.js (สำรอง) สำเร็จ');
+            } else {
+                console.error(error);
+                questionText.innerHTML = '⚠️ เกิดข้อผิดพลาดในการโหลดข้อสอบ กรุณาตรวจสอบไฟล์ question.json';
+                startBtn.disabled = true;
+                startBtn.innerHTML = 'ไม่พบข้อมูลข้อสอบ';
+            }
         }
     }
 
@@ -84,12 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const shouldShuffle = shuffleCheckbox.checked;
         
         // Prepare questions
-        // Prepare questions
         currentQuestions = allQuestions.map(q => {
             const optionsArray = Object.keys(q.options).map(key => ({
                 id: key,
                 text: q.options[key],
-                isCorrect: key === q.correct_answer
+                isCorrect: Array.isArray(q.correct_answer)
+                    ? q.correct_answer.includes(key)
+                    : key === q.correct_answer
             }));
             return {
                 ...q,
@@ -101,12 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
             currentQuestions = shuffleArray(currentQuestions);
             currentQuestions = currentQuestions.map(q => {
                 let shuffledOptions = shuffleArray(q.optionsArray);
-                const labels = ['A', 'B', 'C', 'D'];
+                const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const correctLabels = [];
                 shuffledOptions = shuffledOptions.map((opt, idx) => {
-                    const newId = labels[idx];
-                    if (opt.isCorrect) q.correct_answer = newId;
+                    const newId = labels[idx] || `Opt${idx + 1}`;
+                    if (opt.isCorrect) {
+                        correctLabels.push(newId);
+                    }
                     return { ...opt, id: newId };
                 });
+                q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
                 return { ...q, optionsArray: shuffledOptions };
             });
         }
@@ -212,7 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedOptionId) return;
 
         const q = currentQuestions[currentQuestionIndex];
-        const isCorrect = selectedOptionId === q.correct_answer;
+        const isCorrect = Array.isArray(q.correct_answer)
+            ? q.correct_answer.includes(selectedOptionId)
+            : selectedOptionId === q.correct_answer;
         
         // Disable all options
         const allOptionBtns = document.querySelectorAll('.option-btn');
@@ -220,7 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
             const label = btn.querySelector('.option-label').textContent;
             
-            if (label === q.correct_answer) {
+            const isLabelCorrect = Array.isArray(q.correct_answer)
+                ? q.correct_answer.includes(label)
+                : label === q.correct_answer;
+
+            if (isLabelCorrect) {
                 btn.classList.add('correct');
             } else if (label === selectedOptionId && !isCorrect) {
                 btn.classList.add('incorrect');
@@ -234,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
             incorrectCount++;
         }
 
-        // Show Explanation
         // Show Explanation
         expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง:</strong> ${q.explanation.correct_reason}`;
         
