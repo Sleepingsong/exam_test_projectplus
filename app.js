@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize App
     async function initApp() {
         try {
-            const response = await fetch('questions.json');
+            const response = await fetch('question.json');
             if (!response.ok) {
                 throw new Error('ไม่สามารถโหลดข้อมูลข้อสอบได้');
             }
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allQuestions = data.questions;
         } catch (error) {
             console.error(error);
-            questionText.innerHTML = '⚠️ เกิดข้อผิดพลาดในการโหลดข้อสอบ กรุณาตรวจสอบไฟล์ questions.json';
+            questionText.innerHTML = '⚠️ เกิดข้อผิดพลาดในการโหลดข้อสอบ กรุณาตรวจสอบไฟล์ question.json';
             startBtn.disabled = true;
             startBtn.innerHTML = 'ไม่พบข้อมูลข้อสอบ';
         }
