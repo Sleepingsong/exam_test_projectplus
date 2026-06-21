@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup Elements
     const timeLimitInput = document.getElementById('time-limit');
+    const examLengthSelect = document.getElementById('exam-length');
     const shuffleCheckbox = document.getElementById('shuffle-questions');
     const startBtn = document.getElementById('start-btn');
     
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalQNumDisplay = document.getElementById('total-q-num');
     const progressFill = document.getElementById('progress-fill');
     const timerDisplay = document.getElementById('timer-display');
+    const stopBtn = document.getElementById('stop-btn');
     const questionText = document.getElementById('question-text');
     const optionsContainer = document.getElementById('options-container');
     const submitBtn = document.getElementById('submit-btn');
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Results Elements
     const finalScoreDisplay = document.getElementById('final-score');
     const finalTotalDisplay = document.getElementById('final-total');
+    const finalPercentageDisplay = document.getElementById('final-percentage');
     const statCorrect = document.getElementById('stat-correct');
     const statIncorrect = document.getElementById('stat-incorrect');
     const statTime = document.getElementById('stat-time');
@@ -89,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const shouldShuffle = shuffleCheckbox.checked;
+        const examLength = examLengthSelect.value;
         
         // Prepare questions
         currentQuestions = allQuestions.map(q => {
@@ -121,6 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
                 return { ...q, optionsArray: shuffledOptions };
             });
+        }
+
+        if (examLength === '40') {
+            currentQuestions = currentQuestions.slice(0, 40);
         }
 
         // Reset state
@@ -284,6 +292,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Stop Exam
+    stopBtn.addEventListener('click', () => {
+        if (confirm('คุณแน่ใจหรือไม่ว่าต้องการหยุดทำข้อสอบและดูผลคะแนน?')) {
+            finishExam(false);
+        }
+    });
+
     // Finish Exam
     function finishExam(isTimeUp) {
         clearInterval(timerInterval);
@@ -298,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
         statCorrect.textContent = score;
         statIncorrect.textContent = currentQuestions.length - score; // If time's up, unanswered are counted as incorrect visually here, or we can use incorrectCount. Let's use (total - score).
         statTime.textContent = formatTime(timeUsed);
+
+        const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
+        finalPercentageDisplay.textContent = `${percentage}%`;
 
         // Transition
         examScreen.classList.remove('active');
