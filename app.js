@@ -58,11 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await response.json();
             allQuestions = data.questions;
+            populateExamLengthOptions();
             console.log('โหลดข้อสอบจาก question.json สำเร็จ');
         } catch (error) {
             console.warn('ไม่สามารถโหลด question.json ได้, กำลังพยายามใช้ข้อมูลสำรอง:', error);
             if (window.examData && window.examData.questions) {
                 allQuestions = window.examData.questions;
+                populateExamLengthOptions();
                 console.log('โหลดข้อสอบจาก question-data.js (สำรอง) สำเร็จ');
             } else {
                 console.error(error);
@@ -71,6 +73,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 startBtn.innerHTML = 'ไม่พบข้อมูลข้อสอบ';
             }
         }
+    }
+
+    function populateExamLengthOptions() {
+        examLengthSelect.innerHTML = '';
+        
+        const total = allQuestions.length;
+        const chunkSize = 40;
+        let setNum = 1;
+        
+        for (let i = 0; i < total; i += chunkSize) {
+            const end = Math.min(i + chunkSize, total);
+            const option = document.createElement('option');
+            option.value = `${i}-${end}`;
+            option.textContent = `ชุดที่ ${setNum} (ข้อ ${i + 1} - ${end})`;
+            examLengthSelect.appendChild(option);
+            setNum++;
+        }
+        
+        const allOption = document.createElement('option');
+        allOption.value = 'all';
+        allOption.textContent = `ทั้งหมด (${total} ข้อ)`;
+        examLengthSelect.appendChild(allOption);
     }
 
     // Utility: Shuffle Array
@@ -94,8 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const shouldShuffle = shuffleCheckbox.checked;
         const examLength = examLengthSelect.value;
         
+        let selectedQuestions = [...allQuestions];
+        if (examLength !== 'all') {
+            const parts = examLength.split('-');
+            const startIdx = parseInt(parts[0], 10);
+            const endIdx = parseInt(parts[1], 10);
+            selectedQuestions = selectedQuestions.slice(startIdx, endIdx);
+        }
+
         // Prepare questions
-        currentQuestions = allQuestions.map(q => {
+        currentQuestions = selectedQuestions.map(q => {
             const optionsArray = Object.keys(q.options).map(key => ({
                 id: key,
                 text: q.options[key],
@@ -125,10 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
                 return { ...q, optionsArray: shuffledOptions };
             });
-        }
-
-        if (examLength === '40') {
-            currentQuestions = currentQuestions.slice(0, 40);
         }
 
         // Reset state
