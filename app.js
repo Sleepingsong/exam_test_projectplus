@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsScreen = document.getElementById('results-screen');
     
     // Setup Elements
-    const timeLimitInput = document.getElementById('time-limit');
     const examLengthSelect = document.getElementById('exam-length');
     const shuffleCheckbox = document.getElementById('shuffle-questions');
     const startBtn = document.getElementById('start-btn');
@@ -44,8 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let incorrectCount = 0;
     
     // Timer Variables
-    let totalTimeSeconds = 0;
-    let timeRemaining = 0;
     let timerInterval = null;
     let timeUsed = 0;
 
@@ -109,12 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start Exam
     startBtn.addEventListener('click', () => {
-        const timeMinutes = parseInt(timeLimitInput.value);
-        if (isNaN(timeMinutes) || timeMinutes < 1) {
-            alert('กรุณาระบุเวลาให้ถูกต้อง');
-            return;
-        }
-
         const shouldShuffle = shuffleCheckbox.checked;
         const examLength = examLengthSelect.value;
         
@@ -163,8 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuestionIndex = 0;
         score = 0;
         incorrectCount = 0;
-        totalTimeSeconds = timeMinutes * 60;
-        timeRemaining = totalTimeSeconds;
         timeUsed = 0;
 
         // UI Transition
@@ -187,29 +176,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${m}:${s}`;
     }
 
+    // Format Time Thai
+    function formatTimeThai(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m} นาที ${s} วินาที`;
+    }
+
     // Timer logic
     function startTimer() {
         updateTimerDisplay();
-        document.querySelector('.timer-container').classList.remove('warning');
         
         timerInterval = setInterval(() => {
-            timeRemaining--;
             timeUsed++;
             updateTimerDisplay();
-            
-            if (timeRemaining <= 60 && timeRemaining > 0) {
-                document.querySelector('.timer-container').classList.add('warning');
-            }
-            
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                finishExam(true); // true means time's up
-            }
         }, 1000);
     }
 
     function updateTimerDisplay() {
-        timerDisplay.textContent = formatTime(timeRemaining);
+        timerDisplay.textContent = formatTime(timeUsed);
     }
 
     // Load Question
@@ -340,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalTotalDisplay.textContent = currentQuestions.length;
         statCorrect.textContent = score;
         statIncorrect.textContent = currentQuestions.length - score; // If time's up, unanswered are counted as incorrect visually here, or we can use incorrectCount. Let's use (total - score).
-        statTime.textContent = formatTime(timeUsed);
+        statTime.textContent = formatTimeThai(timeUsed);
 
         const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
         finalPercentageDisplay.textContent = `${percentage}%`;
