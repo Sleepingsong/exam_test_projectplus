@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsContainer = document.getElementById('options-container');
     const submitBtn = document.getElementById('submit-btn');
     const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
     
     // Explanation Elements
     const explanationPanel = document.getElementById('explanation-panel');
@@ -128,7 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
             return {
                 ...q,
-                optionsArray: optionsArray
+                optionsArray: optionsArray,
+                isAnswered: false,
+                userSelectedAnswer: null
             };
         });
 
@@ -207,6 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressPercentage = ((currentQuestionIndex) / currentQuestions.length) * 100;
         progressFill.style.width = `${progressPercentage}%`;
 
+        // Update Prev Button
+        if (currentQuestionIndex > 0) {
+            prevBtn.classList.remove('hidden');
+        } else {
+            prevBtn.classList.add('hidden');
+        }
+
         // Reset UI
         explanationPanel.classList.add('hidden');
         submitBtn.classList.remove('hidden');
@@ -228,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             btn.addEventListener('click', () => {
+                if (q.isAnswered) return;
                 // Remove selected class from all
                 document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
                 // Add to current
@@ -238,6 +249,47 @@ document.addEventListener('DOMContentLoaded', () => {
             
             optionsContainer.appendChild(btn);
         });
+
+        // Restore answered state if already answered
+        if (q.isAnswered) {
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            
+            const isCorrect = Array.isArray(q.correct_answer)
+                ? q.correct_answer.includes(q.userSelectedAnswer)
+                : q.userSelectedAnswer === q.correct_answer;
+
+            const allOptionBtns = document.querySelectorAll('.option-btn');
+            allOptionBtns.forEach(btn => {
+                btn.disabled = true;
+                const label = btn.querySelector('.option-label').textContent;
+                
+                const isLabelCorrect = Array.isArray(q.correct_answer)
+                    ? q.correct_answer.includes(label)
+                    : label === q.correct_answer;
+
+                if (isLabelCorrect) {
+                    btn.classList.add('correct');
+                } else if (label === q.userSelectedAnswer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                } else if (label === q.userSelectedAnswer) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            // Show Explanation
+            expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง:</strong> ${q.explanation.correct_reason}`;
+            
+            let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
+            if (q.explanation.incorrect_reasons) {
+                for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
+                    incorrectHtml += `<li><strong>${key}</strong>: ${reason}</li>`;
+                }
+            }
+            incorrectHtml += '</ul>';
+            expIncorrectText.innerHTML = incorrectHtml;
+            explanationPanel.classList.remove('hidden');
+        }
     }
 
     // Submit Answer
@@ -245,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedOptionId) return;
 
         const q = currentQuestions[currentQuestionIndex];
+        q.isAnswered = true;
+        q.userSelectedAnswer = selectedOptionId;
+
         const isCorrect = Array.isArray(q.correct_answer)
             ? q.correct_answer.includes(selectedOptionId)
             : selectedOptionId === q.correct_answer;
@@ -301,6 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentQuestionIndex >= currentQuestions.length) {
             finishExam(false);
         } else {
+            loadQuestion();
+        }
+    });
+
+    // Previous Question
+    prevBtn.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
             loadQuestion();
         }
     });

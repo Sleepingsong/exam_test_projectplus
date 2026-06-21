@@ -306,6 +306,17 @@ input:checked + .slider:before {
     background: rgba(255, 255, 255, 0.2);
 }
 
+.actions-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.actions-container .primary-btn, .actions-container .secondary-btn {
+    margin-top: 0;
+    flex: 1;
+}
+
 /* Exam Screen */
 .exam-header {
     display: flex;

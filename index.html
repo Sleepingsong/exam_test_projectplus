@@ -39,7 +39,7 @@
 
             <div class="settings-group checkbox-group">
                 <label class="toggle-switch">
-                    <input type="checkbox" id="shuffle-questions" checked>
+                    <input type="checkbox" id="shuffle-questions">
                     <span class="slider round"></span>
                 </label>
                 <span><i class="fa-solid fa-shuffle"></i> สุ่มลำดับคำถามและคำตอบ</span>
@@ -76,6 +76,9 @@
             </div>
 
             <div class="actions-container">
+                <button id="prev-btn" class="secondary-btn hidden">
+                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                </button>
                 <button id="submit-btn" class="primary-btn" disabled>
                     ตรวจคำตอบ <i class="fa-solid fa-check"></i>
                 </button>
