@@ -658,3 +658,136 @@ input:checked + .slider:before {
         flex-direction: column;
     }
 }
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1) rotate(15deg);
+    background: var(--option-hover);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --option-bg: rgba(0, 0, 0, 0.03);
+    --option-hover: rgba(0, 0, 0, 0.06);
+}
+
+/* Light Mode Specific Adjustments */
+[data-theme="light"] h1 {
+    background: linear-gradient(135deg, #4f46e5, #db2777);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .shape-1 {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="light"] .shape-2 {
+    background: rgba(236, 72, 153, 0.12);
+}
+
+[data-theme="light"] .shape-3 {
+    background: rgba(16, 185, 129, 0.08);
+}
+
+[data-theme="light"] .settings-group {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .settings-group input[type="number"],
+[data-theme="light"] .setting-select {
+    background: rgba(0, 0, 0, 0.04);
+    color: #0f172a;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .setting-select option {
+    background-color: #ffffff;
+    color: #0f172a;
+}
+
+[data-theme="light"] .slider {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .secondary-btn {
+    background: rgba(0, 0, 0, 0.04);
+    color: #0f172a;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .secondary-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .stop-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="light"] .stop-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .option-label {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .explanation-panel {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .explanation-header {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .stat-box {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .theme-toggle-btn {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments for toggle button */
+@media (max-width: 600px) {
+    .theme-toggle-btn {
+        top: 15px;
+        right: 15px;
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+}

@@ -1,4 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme Toggle Elements & Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeToggleIcon = themeToggleBtn.querySelector('i');
+    
+    // Check saved theme or user preference
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    // Apply theme
+    applyTheme(currentTheme);
+    
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        currentTheme = theme;
+        
+        // Update toggle icon
+        if (theme === 'light') {
+            themeToggleIcon.className = 'fa-solid fa-moon';
+        } else {
+            themeToggleIcon.className = 'fa-solid fa-sun';
+        }
+    }
+    
+    themeToggleBtn.addEventListener('click', () => {
+        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(nextTheme);
+    });
+
     // DOM Elements
     const setupScreen = document.getElementById('setup-screen');
     const examScreen = document.getElementById('exam-screen');
