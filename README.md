@@ -1,54 +1,105 @@
-# Project+ Exam Simulator (ระบบฝึกทำข้อสอบเสมือนจริง)
+# 🚀 Project+ Exam Simulator — ระบบฝึกทำข้อสอบเสมือนจริง (CompTIA Project+)
 
-**Webpage / หน้าเว็บไซต์:** [https://sleepingsong.github.io/exam_test_projectplus/](https://sleepingsong.github.io/exam_test_projectplus/)
+[Live Demo (GitHub Pages)](https://sleepingsong.github.io/exam_test_projectplus/)  
+![Live](https://img.shields.io/badge/Live-GitHub%20Pages-blue)
 
-ระบบฝึกทำข้อสอบเสมือนจริงสำหรับใบรับรอง **CompTIA Project+** ออกแบบมาเพื่อให้ผู้ใช้สามารถจำลองการทำข้อสอบได้จริงผ่านหน้าเว็บเบราว์เซอร์ พร้อมระบบสุ่มคำถาม/คำตอบ, เฉลยคำอธิบายอย่างละเอียด และระบบจับเวลาเพื่อเตรียมพร้อมสำหรับการสอบจริง
+สวัสดี! นี่คือเว็บแอปจำลองข้อสอบสำหรับเตรียมสอบ **CompTIA Project+** — ถูกออกแบบให้เล่นได้ทันทีในเบราว์เซอร์ โดยเน้นประสบการณ์ที่ลื่นไหล สวยงาม และใช้งานจริงเหมือนการสอบจริง
 
-A web-based exam simulator for the **CompTIA Project+** certification, designed to let users practice mock exams directly in the browser with features like shuffling, explanations, a timer, and performance stats.
-
----
-
-## 🌟 Features (ฟีเจอร์เด่น)
-
-*   **Premium Glassmorphism UI:** ดีไซน์หน้าเว็บสไตล์กระจกเงา (Glassmorphism) สวยงาม ทันสมัย สะบายตา และรองรับหน้าจอทุกขนาด (Responsive Design)
-*   **Bilingual Font Stack:** ระบบการจัดลำดับฟอนต์แบบพิเศษ (Font Stack) โดยแสดงผลภาษาอังกฤษด้วยฟอนต์ **Inter** และภาษาไทยด้วยฟอนต์ **Sarabun** เพื่อความสวยงามและการอ่านที่สมบูรณ์แบบ
-*   **Dark Mode & Light Mode:** รองรับการสลับโหมดมืด (Dark Mode) และโหมดสว่าง (Light Mode) ด้วยปุ่มกดลอยตัวที่ตอบสนองอย่างรวดเร็ว (Micro-interactions) พร้อมบันทึกสถานะลงในตัวเบราว์เซอร์ (`localStorage`) โดยอัตโนมัติ
-*   **Flexible Exam Lengths:** สามารถเลือกทำข้อสอบเป็นชุดๆ (ชุดละ 40 ข้อ) หรือทำข้อสอบทั้งหมดพร้อมกันได้
-*   **Shuffle Mode:** มีตัวเลือกสำหรับสุ่มลำดับข้อสอบและสุ่มลำดับตัวเลือกตอบ (A-D) เพื่อป้องกันการจดจำตำแหน่งคำตอบ
-*   **Real-time Feedback & Explanations:** ตรวจคำตอบได้ทันทีในแต่ละข้อ พร้อมมีบอร์ดเปิดเผยคำอธิบายอย่างละเอียด ทั้งเหตุผลที่ตอบถูก และเหตุผลที่ตัวเลือกอื่นผิด
-*   **Timer & Metrics:** ระบบจับเวลาใช้งานจริง พร้อมสรุปคะแนนเมื่อทำเสร็จ รวมถึงสถิติจำนวนข้อที่ตอบถูก/ตอบผิด และเวลาที่ใช้ทั้งหมดอย่างละเอียด
-*   **CORS Fallback Capability:** รองรับการเปิดใช้งานแบบ Local (ดับเบิ้ลคลิกไฟล์ `index.html` ตรงๆ) ได้โดยไม่ต้องรันเซิร์ฟเวอร์ โดยระบบจะดึงข้อมูลสำรองจากไฟล์ `question-data.js` แทนหากมีข้อจำกัดด้านความปลอดภัยของเบราว์เซอร์ (CORS)
+A lightweight, browser-based exam simulator for CompTIA Project+ — fast, modern UI, and packed with practical features to sharpen your exam skills.
 
 ---
 
-## 🛠️ Technology Stack (เทคโนโลยีที่ใช้)
+## ✨ ทำไมโปรเจกต์นี้ถึง "ว้าว"
 
-*   **HTML5:** โครงสร้างเว็บแบบ Semantic HTML รองรับการเข้าถึงได้ดี
-*   **CSS3:** การจัดสไตล์แบบ Vanilla CSS ที่ยืดหยุ่นสูง ใช้ตัวแปร CSS Variables ในการบริหารจัดการธีมสี พร้อมแอนิเมชันลื่นไหล
-*   **JavaScript (ES6):** ควบคุมตรรกะการทำข้อสอบ, การนับเวลา, การคำนวณคะแนน และการจัดการธีมสีแบบไม่ขึ้นกับไลบรารีภายนอก (Vanilla JS)
-*   **Google Fonts:** ฟอนต์ `Inter` (อังกฤษ) และ `Sarabun` (ไทย)
-*   **FontAwesome (v6.4.0):** ไอคอนประกอบหน้าเว็บ
+- ดีไซน์สไตล์ Glassmorphism ที่สวยล้ำ ให้ความรู้สึกพรีเมียมโดยไม่ต้องพึ่งเฟรมเวิร์กใหญ่ ๆ
+- ฟีเจอร์ครบ: สุ่มข้อและตัวเลือก, โหมดมืด/สว่าง, เวลาในการทำข้อ, คำอธิบายคำตอบ และสรุปผลหลังทำข้อสอบ
+- ทำงานแบบ Offline ได้ด้วยไฟล์สำรอง (fallback) — เปิด `index.html` โดยตรงก็ใช้งานได้
+- เบามาก (Vanilla JS + CSS) — เหมาะสำหรับฝึกซ้อมทันทีหรือปรับแต่งต่อได้
 
 ---
 
-## 📂 File Structure (โครงสร้างไฟล์)
+## 🌟 ฟีเจอร์เด่น
+
+- Premium Glassmorphism UI — โทนสีสวย เรียบหรู และอ่านง่าย
+- Bilingual Font Stack — รองรับภาษาไทย (Sarabun) และอังกฤษ (Inter)
+- Dark / Light Mode — สลับธีมได้ทันทีด้วยปุ่มลอย
+- Flexible Exam Lengths — เลือกชุดข้อหรือทำทั้งชุดได้ตามต้องการ
+- Shuffle Mode — สับคำถามและตัวเลือกให้เหมือนการสุ่มจริง
+- Real-time Feedback & Explanations — ตรวจคำตอบและดูคำอธิบายได้ทันที
+- Timer & Metrics — จับเวลาและสรุปคะแนนเมื่อทำเสร็จ
+- CORS Fallback — มีไฟล์ `question-data.js` เป็น fallback หากไม่สามารถ fetch `question.json`
+
+---
+
+## 🧭 เทคโนโลยีที่ใช้
+
+- HTML5 (Semantic)
+- CSS3 (Vanilla + CSS Variables) — Glassmorphism, theme variables
+- JavaScript (ES6) — Logic ของข้อสอบ, timer, scoring
+- Google Fonts: Inter (EN), Sarabun (TH)
+- FontAwesome (v6.4.0)
+
+---
+
+## 📂 โครงสร้างไฟล์ (ย่อ)
 
 ```text
-├── index.html          # โครงสร้างหน้าเว็บหลักของโปรแกรมจำลองข้อสอบ
-├── style.css           # สไตล์ชีททั้งหมด (การจัดเลย์เอาต์, Glassmorphism, ธีมสี, และสไตล์เฉพาะใน Light Mode)
-├── app.js              # ตรรกะควบคุมเกมและสถานะของแอป (Timer, Theme logic, Question logic)
-├── question-data.js    # ข้อมูลข้อสอบแบบสำรอง (Fallback) ในรูปแบบตัวแปร JavaScript
-├── question.json       # ข้อมูลข้อสอบจริง (JSON format) สำหรับใช้ดึงผ่าน API fetch
-└── README.md           # คำอธิบายรายละเอียดโปรเจกต์
+├── index.html          # หน้าเว็บหลัก
+├── style.css           # สไตล์ทั้งหมด (Glassmorphism, ธีม)
+├── app.js              # ตรรกะของแอป (Timer, Theme, Questions)
+├── question-data.js    # ข้อมูลสำรอง (fallback) เป็นตัวแปร JS
+├── question.json       # ข้อมูลข้อสอบจริง (JSON) สำหรับ fetch
+└── README.md           # คำอธิบายโปรเจกต์ (ไฟล์นี้)
 ```
 
 ---
 
-## 🚀 How to Run (วิธีการใช้งาน)
+## 🚀 เริ่มใช้งาน (Quick Start)
 
-### วิธีที่ 1: เล่นผ่าน GitHub Pages (แนะนำ)
-เข้าสู่ลิงก์หน้าเว็บไซต์โดยตรงที่: [https://sleepingsong.github.io/exam_test_projectplus/](https://sleepingsong.github.io/exam_test_projectplus/)
+วิธีที่ 1 — เปิดผ่าน GitHub Pages (แนะนำ):
 
-### วิธีที่ 2: รันในเครื่องของตนเอง (Local Run)
-1. ดาวน์โหลดหรือ Clone โฟลเดอร์โปรเจกต์นี้ลงบนคอมพิวเตอร์ของคุณ
-2. ดับเบิ้ลคลิกเปิดไฟล์ `index.html` ด้วยเบราว์เซอร์ที่คุณต้องการได้ทันที (ระบบจะสลับไปดึงข้อมูลคำถามจำลองจาก `question-data.js` โดยอัตโนมัติหากเว็บเซิร์ฟเวอร์ไม่ได้เปิดใช้งาน)
+ไปที่: https://sleepingsong.github.io/exam_test_projectplus/
+
+วิธีที่ 2 — รันแบบ Local (ง่ายสุด):
+
+1. ดาวน์โหลดหรือ clone โปรเจกต์
+2. เปิดไฟล์ `index.html` ด้วยเบราว์เซอร์ (ดับเบิ้ลคลิก) — ถ้าเจอปัญหา CORS ให้ใช้วิธีถัดไป
+
+วิธีที่ 3 — รันผ่าน HTTP server (แนะนำเมื่อทดสอบการ fetch):
+
+- ด้วย Python:
+
+```bash
+python -m http.server 8000
+# แล้วเปิด http://localhost:8000
+```
+
+- หรือด้วย Node (http-server):
+
+```bash
+npx http-server -p 8000
+```
+
+---
+
+## 🛠️ การปรับแต่ง / พัฒนา
+
+- เพิ่ม/แก้ไขชุดคำถาม: แก้ `question.json` หรือ `question-data.js` (fallback)
+- ปรับธีม: แก้ตัวแปร CSS ใน `style.css`
+- ฟีเจอร์ใหม่: โค้ดทั้งหมดเป็น Vanilla JS จึงเข้าใจและแก้ไขง่าย
+
+---
+
+## 🙌 ร่วมพัฒนา
+
+ต้องการเสนอไอเดียหรือส่ง PR มั้ย? ยินดีต้อนรับทุกการมีส่วนร่วม — เปิด Issue หรือ Pull Request พร้อมคำอธิบายสิ่งที่ต้องการเปลี่ยนแปลง
+
+---
+
+## ℹ️ ผู้พัฒนา
+
+Sleepingsong — ดูตัวอย่างและทดลองใช้งานจาก GitHub Pages: https://sleepingsong.github.io/exam_test_projectplus/
+
+---
+
+หากอยากให้ README ดูเท่มากขึ้น (เช่น เพิ่ม GIF ตัวอย่างการใช้งาน, ใส่ screenshot, หรือ badge เพิ่มเติม) บอกมาได้เลย — ผมช่วยเพิ่มให้ทันที!
