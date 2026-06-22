@@ -447,14 +447,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show Explanation
             const correctOpts = q.optionsArray.filter(opt => opt.isCorrect);
             const correctTextDisplay = correctOpts.map(opt => `ข้อ ${opt.id} - ${opt.text}`).join(', ');
-            expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong><br> ${q.explanation.correct_reason}`;
+            expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong> ${q.explanation.correct_reason}`;
             
             let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
             if (q.explanation.incorrect_reasons) {
                 for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
                     const displayKey = q.originalToNewId ? q.originalToNewId[key] : key;
                     const optText = q.options[key];
-                    incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}</strong><br> ${reason}</li>`;
+                    incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}:</strong> ${reason}</li>`;
                 }
             }
             incorrectHtml += '</ul>';
@@ -510,14 +510,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show Explanation
         const correctOpts = q.optionsArray.filter(opt => opt.isCorrect);
         const correctTextDisplay = correctOpts.map(opt => `ข้อ ${opt.id} - ${opt.text}`).join(', ');
-        expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong><br> ${q.explanation.correct_reason}`;
+        expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong> ${q.explanation.correct_reason}`;
         
         let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
         if (q.explanation.incorrect_reasons) {
             for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
                 const displayKey = q.originalToNewId ? q.originalToNewId[key] : key;
                 const optText = q.options[key];
-                incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}</strong><br> ${reason}</li>`;
+                incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}:</strong> ${reason}</li>`;
             }
         }
         incorrectHtml += '</ul>';
