@@ -781,6 +781,10 @@ input:checked + .slider:before {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
+[data-theme="light"] .option-btn.correct {
+    color: var(--text-primary);
+}
+
 /* Responsive adjustments for toggle button */
 @media (max-width: 600px) {
     .theme-toggle-btn {
