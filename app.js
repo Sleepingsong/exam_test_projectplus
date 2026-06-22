@@ -96,14 +96,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('ไม่สามารถโหลดข้อมูลข้อสอบได้');
             }
             const data = await response.json();
-            allQuestions = data.questions;
+            
+            // กรองข้อสอบที่ซ้ำกันออก (ยึดตามโจทย์)
+            const uniqueQuestions = [];
+            const seenQuestions = new Set();
+            data.questions.forEach(q => {
+                const text = q.question.trim();
+                if (!seenQuestions.has(text)) {
+                    seenQuestions.add(text);
+                    uniqueQuestions.push(q);
+                }
+            });
+            
+            allQuestions = uniqueQuestions;
             populateExamLengthOptions();
             updateExamModeUI();
             console.log('โหลดข้อสอบจาก question.json สำเร็จ');
         } catch (error) {
             console.warn('ไม่สามารถโหลด question.json ได้, กำลังพยายามใช้ข้อมูลสำรอง:', error);
             if (window.examData && window.examData.questions) {
-                allQuestions = window.examData.questions;
+                // กรองข้อสอบที่ซ้ำกันออก (ยึดตามโจทย์)
+                const uniqueQuestions = [];
+                const seenQuestions = new Set();
+                window.examData.questions.forEach(q => {
+                    const text = q.question.trim();
+                    if (!seenQuestions.has(text)) {
+                        seenQuestions.add(text);
+                        uniqueQuestions.push(q);
+                    }
+                });
+                
+                allQuestions = uniqueQuestions;
                 populateExamLengthOptions();
                 updateExamModeUI();
                 console.log('โหลดข้อสอบจาก question-data.js (สำรอง) สำเร็จ');
