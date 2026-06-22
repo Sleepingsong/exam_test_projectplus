@@ -767,10 +767,17 @@ input:checked + .slider:before {
 
 [data-theme="light"] .explanation-panel {
     background: rgba(0, 0, 0, 0.02);
+    color: var(--text-primary);
 }
 
 [data-theme="light"] .explanation-header {
     background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .correct-exp,
+[data-theme="light"] .incorrect-exp {
+    color: var(--text-primary);
 }
 
 [data-theme="light"] .stat-box {
