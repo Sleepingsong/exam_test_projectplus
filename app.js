@@ -174,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return selectedQuestions.map(q => {
             const optionsArray = Object.keys(q.options).map(key => ({
                 id: key,
+                originalId: key,
                 text: q.options[key],
                 isCorrect: Array.isArray(q.correct_answer)
                     ? q.correct_answer.includes(key)
@@ -193,14 +194,17 @@ document.addEventListener('DOMContentLoaded', () => {
             let shuffledOptions = shuffleArray(q.optionsArray);
             const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
             const correctLabels = [];
+            const originalToNewId = {};
             shuffledOptions = shuffledOptions.map((opt, idx) => {
                 const newId = labels[idx] || `Opt${idx + 1}`;
                 if (opt.isCorrect) {
                     correctLabels.push(newId);
                 }
+                originalToNewId[opt.originalId] = newId;
                 return { ...opt, id: newId };
             });
             q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
+            q.originalToNewId = originalToNewId;
             return { ...q, optionsArray: shuffledOptions };
         });
     }
@@ -441,12 +445,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Show Explanation
-            expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง:</strong> ${q.explanation.correct_reason}`;
+            const correctOpts = q.optionsArray.filter(opt => opt.isCorrect);
+            const correctTextDisplay = correctOpts.map(opt => `ข้อ ${opt.id} - ${opt.text}`).join(', ');
+            expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong><br> ${q.explanation.correct_reason}`;
             
             let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
             if (q.explanation.incorrect_reasons) {
                 for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
-                    incorrectHtml += `<li><strong>${key}</strong>: ${reason}</li>`;
+                    const displayKey = q.originalToNewId ? q.originalToNewId[key] : key;
+                    const optText = q.options[key];
+                    incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}</strong><br> ${reason}</li>`;
                 }
             }
             incorrectHtml += '</ul>';
@@ -500,12 +508,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Show Explanation
-        expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง:</strong> ${q.explanation.correct_reason}`;
+        const correctOpts = q.optionsArray.filter(opt => opt.isCorrect);
+        const correctTextDisplay = correctOpts.map(opt => `ข้อ ${opt.id} - ${opt.text}`).join(', ');
+        expCorrectText.innerHTML = `<strong>เหตุผลที่ถูกต้อง (${correctTextDisplay}):</strong><br> ${q.explanation.correct_reason}`;
         
         let incorrectHtml = '<strong>เหตุผลที่ตัวเลือกอื่นผิด:</strong><ul>';
         if (q.explanation.incorrect_reasons) {
             for (const [key, reason] of Object.entries(q.explanation.incorrect_reasons)) {
-                incorrectHtml += `<li><strong>${key}</strong>: ${reason}</li>`;
+                const displayKey = q.originalToNewId ? q.originalToNewId[key] : key;
+                const optText = q.options[key];
+                incorrectHtml += `<li class="mt-2"><strong>ข้อ ${displayKey} - ${optText}</strong><br> ${reason}</li>`;
             }
         }
         incorrectHtml += '</ul>';
