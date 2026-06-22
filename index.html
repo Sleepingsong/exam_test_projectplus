@@ -34,6 +34,33 @@
 
             <div class="settings-group">
                 <label>
+                    <i class="fa-solid fa-layer-group"></i> โหมดการทำข้อสอบ
+                </label>
+                <select id="exam-mode" class="setting-select">
+                    <option value="practice">โหมดฝึกทำข้อสอบ</option>
+                    <option value="real">จำลองสอบจริง (90 ข้อ / 90 นาที)</option>
+                </select>
+            </div>
+
+            <div id="real-exam-details" class="exam-info-card hidden">
+                <div class="exam-info-title">
+                    <i class="fa-solid fa-clipboard-check"></i> จำลองสอบจริง Project+
+                </div>
+                <div class="exam-info-grid">
+                    <div><strong>90</strong><span>ข้อสอบ</span></div>
+                    <div><strong>90</strong><span>นาที</span></div>
+                    <div><strong>750/900</strong><span>คะแนนผ่าน</span></div>
+                </div>
+                <ul class="domain-list">
+                    <li>Project Management Concepts <span>33%</span></li>
+                    <li>Project Life Cycle Phases <span>30%</span></li>
+                    <li>Tools and Documentation <span>19%</span></li>
+                    <li>Basics of IT and Governance <span>18%</span></li>
+                </ul>
+            </div>
+
+            <div class="settings-group">
+                <label>
                     <i class="fa-solid fa-list-ol"></i> จำนวนข้อสอบ
                 </label>
                 <select id="exam-length" class="setting-select">
@@ -120,6 +147,7 @@
                 <div class="score-circle">
                     <span id="final-score">0</span><span class="score-total">/<span id="final-total">0</span></span>
                 </div>
+                <div id="result-status" class="result-status hidden"></div>
                 <div class="percentage-display">
                     คิดเป็น <span id="final-percentage">0%</span>
                 </div>

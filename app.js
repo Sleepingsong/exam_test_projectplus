@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsScreen = document.getElementById('results-screen');
     
     // Setup Elements
+    const examModeSelect = document.getElementById('exam-mode');
+    const realExamDetails = document.getElementById('real-exam-details');
     const examLengthSelect = document.getElementById('exam-length');
     const shuffleCheckbox = document.getElementById('shuffle-questions');
     const startBtn = document.getElementById('start-btn');
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalQNumDisplay = document.getElementById('total-q-num');
     const progressFill = document.getElementById('progress-fill');
     const timerDisplay = document.getElementById('timer-display');
+    const timerContainer = timerDisplay.closest('.timer-container');
     const stopBtn = document.getElementById('stop-btn');
     const questionText = document.getElementById('question-text');
     const optionsContainer = document.getElementById('options-container');
@@ -60,10 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const finalTotalDisplay = document.getElementById('final-total');
     const finalPercentageDisplay = document.getElementById('final-percentage');
+    const resultStatus = document.getElementById('result-status');
     const statCorrect = document.getElementById('stat-correct');
     const statIncorrect = document.getElementById('stat-incorrect');
     const statTime = document.getElementById('stat-time');
     const restartBtn = document.getElementById('restart-btn');
+
+    const REAL_EXAM_QUESTION_COUNT = 90;
+    const REAL_EXAM_TIME_LIMIT_SECONDS = 90 * 60;
+    const REAL_EXAM_MAX_SCORE = 900;
+    const REAL_EXAM_PASSING_SCORE = 750;
 
     // State Variables
     let allQuestions = [];
@@ -72,10 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedOptionId = null;
     let score = 0;
     let incorrectCount = 0;
+    let isRealExamMode = false;
     
     // Timer Variables
     let timerInterval = null;
     let timeUsed = 0;
+    let timeLimitSeconds = null;
 
     // Initialize App
     async function initApp() {
@@ -87,12 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             allQuestions = data.questions;
             populateExamLengthOptions();
+            updateExamModeUI();
             console.log('โหลดข้อสอบจาก question.json สำเร็จ');
         } catch (error) {
             console.warn('ไม่สามารถโหลด question.json ได้, กำลังพยายามใช้ข้อมูลสำรอง:', error);
             if (window.examData && window.examData.questions) {
                 allQuestions = window.examData.questions;
                 populateExamLengthOptions();
+                updateExamModeUI();
                 console.log('โหลดข้อสอบจาก question-data.js (สำรอง) สำเร็จ');
             } else {
                 console.error(error);
@@ -125,6 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
         examLengthSelect.appendChild(allOption);
     }
 
+    function updateExamModeUI() {
+        const realModeSelected = examModeSelect.value === 'real';
+        realExamDetails.classList.toggle('hidden', !realModeSelected);
+        examLengthSelect.disabled = realModeSelected;
+        shuffleCheckbox.disabled = realModeSelected;
+        examLengthSelect.closest('.settings-group').classList.toggle('disabled', realModeSelected);
+        shuffleCheckbox.closest('.settings-group').classList.toggle('disabled', realModeSelected);
+    }
+
+    examModeSelect.addEventListener('change', updateExamModeUI);
+
     // Utility: Shuffle Array
     function shuffleArray(array) {
         const newArray = [...array];
@@ -146,21 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Start Exam
-    startBtn.addEventListener('click', () => {
-        const shouldShuffle = shuffleCheckbox.checked;
-        const examLength = examLengthSelect.value;
-        
-        let selectedQuestions = [...allQuestions];
-        if (examLength !== 'all') {
-            const parts = examLength.split('-');
-            const startIdx = parseInt(parts[0], 10);
-            const endIdx = parseInt(parts[1], 10);
-            selectedQuestions = selectedQuestions.slice(startIdx, endIdx);
-        }
-
-        // Prepare questions
-        currentQuestions = selectedQuestions.map(q => {
+    function prepareQuestions(selectedQuestions) {
+        return selectedQuestions.map(q => {
             const optionsArray = Object.keys(q.options).map(key => ({
                 id: key,
                 text: q.options[key],
@@ -175,23 +186,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 userSelectedAnswer: null
             };
         });
+    }
 
-        if (shouldShuffle) {
-            currentQuestions = shuffleArray(currentQuestions);
-            currentQuestions = currentQuestions.map(q => {
-                let shuffledOptions = shuffleArray(q.optionsArray);
-                const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-                const correctLabels = [];
-                shuffledOptions = shuffledOptions.map((opt, idx) => {
-                    const newId = labels[idx] || `Opt${idx + 1}`;
-                    if (opt.isCorrect) {
-                        correctLabels.push(newId);
-                    }
-                    return { ...opt, id: newId };
-                });
-                q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
-                return { ...q, optionsArray: shuffledOptions };
+    function shufflePreparedQuestions(questions) {
+        return shuffleArray(questions).map(q => {
+            let shuffledOptions = shuffleArray(q.optionsArray);
+            const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            const correctLabels = [];
+            shuffledOptions = shuffledOptions.map((opt, idx) => {
+                const newId = labels[idx] || `Opt${idx + 1}`;
+                if (opt.isCorrect) {
+                    correctLabels.push(newId);
+                }
+                return { ...opt, id: newId };
             });
+            q.correct_answer = Array.isArray(q.correct_answer) ? correctLabels : (correctLabels[0] || '');
+            return { ...q, optionsArray: shuffledOptions };
+        });
+    }
+
+    // Start Exam
+    startBtn.addEventListener('click', () => {
+        isRealExamMode = examModeSelect.value === 'real';
+        const shouldShuffle = shuffleCheckbox.checked;
+        const examLength = examLengthSelect.value;
+        
+        let selectedQuestions = [...allQuestions];
+        if (isRealExamMode) {
+            selectedQuestions = shuffleArray(selectedQuestions).slice(0, REAL_EXAM_QUESTION_COUNT);
+        } else if (examLength !== 'all') {
+            const parts = examLength.split('-');
+            const startIdx = parseInt(parts[0], 10);
+            const endIdx = parseInt(parts[1], 10);
+            selectedQuestions = selectedQuestions.slice(startIdx, endIdx);
+        }
+
+        currentQuestions = prepareQuestions(selectedQuestions);
+
+        if (!isRealExamMode && shouldShuffle) {
+            currentQuestions = shufflePreparedQuestions(currentQuestions);
         }
 
         // Reset state
@@ -199,6 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         score = 0;
         incorrectCount = 0;
         timeUsed = 0;
+        timeLimitSeconds = isRealExamMode ? REAL_EXAM_TIME_LIMIT_SECONDS : null;
+        timerContainer.classList.remove('warning');
+        resultStatus.classList.add('hidden');
+        resultStatus.classList.remove('pass', 'fail');
 
         // UI Transition
         setupScreen.classList.remove('active');
@@ -229,16 +266,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Timer logic
     function startTimer() {
+        clearInterval(timerInterval);
         updateTimerDisplay();
         
         timerInterval = setInterval(() => {
             timeUsed++;
             updateTimerDisplay();
+            if (timeLimitSeconds && timeUsed >= timeLimitSeconds) {
+                finishExam(true);
+            }
         }, 1000);
     }
 
     function updateTimerDisplay() {
-        timerDisplay.textContent = formatTime(timeUsed);
+        if (timeLimitSeconds) {
+            const remaining = Math.max(timeLimitSeconds - timeUsed, 0);
+            timerDisplay.textContent = formatTime(remaining);
+            timerContainer.classList.toggle('warning', remaining <= 300);
+        } else {
+            timerDisplay.textContent = formatTime(timeUsed);
+            timerContainer.classList.remove('warning');
+        }
     }
 
     // Load Question
@@ -263,10 +311,19 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.classList.remove('hidden');
         submitBtn.disabled = true;
         nextBtn.classList.add('hidden');
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = currentQuestionIndex === currentQuestions.length - 1
+            ? `ส่งข้อสอบ <i class="fa-solid fa-flag-checkered"></i>`
+            : `ข้อถัดไป <i class="fa-solid fa-arrow-right"></i>`;
         const isMultipleChoice = Array.isArray(q.correct_answer);
-        selectedOptionId = isMultipleChoice ? [] : null;
+        selectedOptionId = q.userSelectedAnswer
+            ? (Array.isArray(q.userSelectedAnswer) ? [...q.userSelectedAnswer] : q.userSelectedAnswer)
+            : (isMultipleChoice ? [] : null);
 
-        if (isMultipleChoice) {
+        if (isRealExamMode) {
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+        } else if (isMultipleChoice) {
             submitBtn.innerHTML = `ตรวจคำตอบ (เลือก ${q.correct_answer.length} ข้อ) <i class="fa-solid fa-check"></i>`;
         } else {
             submitBtn.innerHTML = `ตรวจคำตอบ <i class="fa-solid fa-check"></i>`;
@@ -286,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             btn.addEventListener('click', () => {
-                if (q.isAnswered) return;
+                if (q.isAnswered && !isRealExamMode) return;
                 
                 if (isMultipleChoice) {
                     const idx = selectedOptionId.indexOf(opt.id);
@@ -330,10 +387,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         submitBtn.disabled = false;
                     }
                 }
+
+                if (isRealExamMode) {
+                    q.userSelectedAnswer = Array.isArray(selectedOptionId)
+                        ? [...selectedOptionId]
+                        : selectedOptionId;
+                    q.isAnswered = Array.isArray(selectedOptionId)
+                        ? selectedOptionId.length > 0
+                        : Boolean(selectedOptionId);
+                }
             });
             
             optionsContainer.appendChild(btn);
         });
+
+        if (isRealExamMode) {
+            const allOptionBtns = document.querySelectorAll('.option-btn');
+            allOptionBtns.forEach(btn => {
+                const label = btn.querySelector('.option-label').textContent;
+                const isLabelSelected = Array.isArray(q.userSelectedAnswer)
+                    ? q.userSelectedAnswer.includes(label)
+                    : label === q.userSelectedAnswer;
+                btn.classList.toggle('selected', isLabelSelected);
+            });
+            return;
+        }
 
         // Restore answered state if already answered
         if (q.isAnswered) {
@@ -468,23 +546,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function calculateFinalScore() {
+        return currentQuestions.reduce((total, q) => {
+            if (!q.isAnswered) return total;
+            return checkAnswerCorrect(q.correct_answer, q.userSelectedAnswer) ? total + 1 : total;
+        }, 0);
+    }
+
     // Finish Exam
     function finishExam(isTimeUp) {
         clearInterval(timerInterval);
+        score = calculateFinalScore();
         
         if (isTimeUp) {
             alert('หมดเวลาทำข้อสอบแล้ว!');
         }
 
         // Update Results UI
-        finalScoreDisplay.textContent = score;
-        finalTotalDisplay.textContent = currentQuestions.length;
+        const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
+        const scaledScore = currentQuestions.length > 0
+            ? Math.round((score / currentQuestions.length) * REAL_EXAM_MAX_SCORE)
+            : 0;
+
+        if (isRealExamMode) {
+            const passed = scaledScore >= REAL_EXAM_PASSING_SCORE;
+            finalScoreDisplay.textContent = scaledScore;
+            finalTotalDisplay.textContent = REAL_EXAM_MAX_SCORE;
+            finalPercentageDisplay.textContent = `${score}/${currentQuestions.length} ข้อ (${percentage}%)`;
+            resultStatus.textContent = passed
+                ? `ผ่านเกณฑ์ ${REAL_EXAM_PASSING_SCORE}/${REAL_EXAM_MAX_SCORE}`
+                : `ยังไม่ผ่านเกณฑ์ ${REAL_EXAM_PASSING_SCORE}/${REAL_EXAM_MAX_SCORE}`;
+            resultStatus.classList.remove('hidden', 'pass', 'fail');
+            resultStatus.classList.add(passed ? 'pass' : 'fail');
+        } else {
+            finalScoreDisplay.textContent = score;
+            finalTotalDisplay.textContent = currentQuestions.length;
+            finalPercentageDisplay.textContent = `${percentage}%`;
+            resultStatus.classList.add('hidden');
+            resultStatus.classList.remove('pass', 'fail');
+        }
+
         statCorrect.textContent = score;
         statIncorrect.textContent = currentQuestions.length - score; // If time's up, unanswered are counted as incorrect visually here, or we can use incorrectCount. Let's use (total - score).
         statTime.textContent = formatTimeThai(timeUsed);
-
-        const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
-        finalPercentageDisplay.textContent = `${percentage}%`;
 
         // Transition
         examScreen.classList.remove('active');

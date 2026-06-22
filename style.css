@@ -198,6 +198,69 @@ h1 {
     color: var(--text-primary);
 }
 
+.exam-info-card {
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.exam-info-title {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.exam-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.exam-info-grid div {
+    background: rgba(0, 0, 0, 0.16);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+}
+
+.exam-info-grid strong {
+    display: block;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.exam-info-grid span,
+.domain-list span {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.domain-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.domain-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.settings-group.disabled {
+    opacity: 0.55;
+}
+
 /* Toggle Switch */
 .checkbox-group {
     justify-content: flex-start;
@@ -602,6 +665,26 @@ input:checked + .slider:before {
     border: 1px solid var(--glass-border);
 }
 
+.result-status {
+    font-size: 1.15rem;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+}
+
+.result-status.pass {
+    color: var(--success);
+    background: var(--success-bg);
+    border-color: var(--success);
+}
+
+.result-status.fail {
+    color: var(--danger);
+    background: var(--danger-bg);
+    border-color: var(--danger);
+}
+
 .score-total {
     font-size: 1.5rem;
     color: var(--text-secondary);
@@ -656,6 +739,15 @@ input:checked + .slider:before {
     
     .stats-container {
         flex-direction: column;
+    }
+
+    .exam-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .domain-list li {
+        flex-direction: column;
+        gap: 2px;
     }
 }
 
@@ -722,6 +814,15 @@ input:checked + .slider:before {
 [data-theme="light"] .settings-group {
     background: rgba(0, 0, 0, 0.02);
     border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .exam-info-card {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.18);
+}
+
+[data-theme="light"] .exam-info-grid div {
+    background: rgba(0, 0, 0, 0.03);
 }
 
 [data-theme="light"] .settings-group input[type="number"],
