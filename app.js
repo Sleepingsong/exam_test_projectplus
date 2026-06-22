@@ -135,6 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return newArray;
     }
 
+    // Utility: Check if user answers match correct answers
+    function checkAnswerCorrect(correctAnswer, userSelectedAnswer) {
+        if (Array.isArray(correctAnswer)) {
+            const userAns = Array.isArray(userSelectedAnswer) ? userSelectedAnswer : [userSelectedAnswer];
+            if (correctAnswer.length !== userAns.length) return false;
+            return correctAnswer.every(ans => userAns.includes(ans));
+        } else {
+            return correctAnswer === userSelectedAnswer;
+        }
+    }
+
     // Start Exam
     startBtn.addEventListener('click', () => {
         const shouldShuffle = shuffleCheckbox.checked;
@@ -252,7 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.classList.remove('hidden');
         submitBtn.disabled = true;
         nextBtn.classList.add('hidden');
-        selectedOptionId = null;
+        const isMultipleChoice = Array.isArray(q.correct_answer);
+        selectedOptionId = isMultipleChoice ? [] : null;
+
+        if (isMultipleChoice) {
+            submitBtn.innerHTML = `ตรวจคำตอบ (เลือก ${q.correct_answer.length} ข้อ) <i class="fa-solid fa-check"></i>`;
+        } else {
+            submitBtn.innerHTML = `ตรวจคำตอบ <i class="fa-solid fa-check"></i>`;
+        }
 
         // Render Question
         questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
@@ -269,12 +287,49 @@ document.addEventListener('DOMContentLoaded', () => {
             
             btn.addEventListener('click', () => {
                 if (q.isAnswered) return;
-                // Remove selected class from all
-                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-                // Add to current
-                btn.classList.add('selected');
-                selectedOptionId = opt.id;
-                submitBtn.disabled = false;
+                
+                if (isMultipleChoice) {
+                    const idx = selectedOptionId.indexOf(opt.id);
+                    if (idx > -1) {
+                        btn.classList.remove('selected');
+                        selectedOptionId.splice(idx, 1);
+                    } else {
+                        if (selectedOptionId.length < q.correct_answer.length) {
+                            btn.classList.add('selected');
+                            selectedOptionId.push(opt.id);
+                        } else {
+                            const oldestId = selectedOptionId.shift();
+                            const oldestBtn = Array.from(optionsContainer.querySelectorAll('.option-btn')).find(
+                                b => b.querySelector('.option-label').textContent === oldestId
+                            );
+                            if (oldestBtn) {
+                                oldestBtn.classList.remove('selected');
+                            }
+                            btn.classList.add('selected');
+                            selectedOptionId.push(opt.id);
+                        }
+                    }
+                    
+                    const remaining = q.correct_answer.length - selectedOptionId.length;
+                    if (remaining > 0) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `ตรวจคำตอบ (เลือกอีก ${remaining} ข้อ) <i class="fa-solid fa-check"></i>`;
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = `ตรวจคำตอบ <i class="fa-solid fa-check"></i>`;
+                    }
+                } else {
+                    if (selectedOptionId === opt.id) {
+                        btn.classList.remove('selected');
+                        selectedOptionId = null;
+                        submitBtn.disabled = true;
+                    } else {
+                        optionsContainer.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        selectedOptionId = opt.id;
+                        submitBtn.disabled = false;
+                    }
+                }
             });
             
             optionsContainer.appendChild(btn);
@@ -285,9 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
             
-            const isCorrect = Array.isArray(q.correct_answer)
-                ? q.correct_answer.includes(q.userSelectedAnswer)
-                : q.userSelectedAnswer === q.correct_answer;
+            const isCorrect = checkAnswerCorrect(q.correct_answer, q.userSelectedAnswer);
 
             const allOptionBtns = document.querySelectorAll('.option-btn');
             allOptionBtns.forEach(btn => {
@@ -298,12 +351,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? q.correct_answer.includes(label)
                     : label === q.correct_answer;
 
+                const isLabelSelected = Array.isArray(q.userSelectedAnswer)
+                    ? q.userSelectedAnswer.includes(label)
+                    : label === q.userSelectedAnswer;
+
                 if (isLabelCorrect) {
                     btn.classList.add('correct');
-                } else if (label === q.userSelectedAnswer && !isCorrect) {
+                } else if (isLabelSelected) {
                     btn.classList.add('incorrect');
-                } else if (label === q.userSelectedAnswer) {
-                    btn.classList.add('selected');
                 }
             });
 
@@ -324,15 +379,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Submit Answer
     submitBtn.addEventListener('click', () => {
-        if (!selectedOptionId) return;
-
         const q = currentQuestions[currentQuestionIndex];
+        const isMultipleChoice = Array.isArray(q.correct_answer);
+
+        if (isMultipleChoice) {
+            if (!selectedOptionId || selectedOptionId.length !== q.correct_answer.length) return;
+        } else {
+            if (!selectedOptionId) return;
+        }
+
         q.isAnswered = true;
         q.userSelectedAnswer = selectedOptionId;
 
-        const isCorrect = Array.isArray(q.correct_answer)
-            ? q.correct_answer.includes(selectedOptionId)
-            : selectedOptionId === q.correct_answer;
+        const isCorrect = checkAnswerCorrect(q.correct_answer, selectedOptionId);
         
         // Disable all options
         const allOptionBtns = document.querySelectorAll('.option-btn');
@@ -344,9 +403,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? q.correct_answer.includes(label)
                 : label === q.correct_answer;
 
+            const isLabelSelected = Array.isArray(selectedOptionId)
+                ? selectedOptionId.includes(label)
+                : label === selectedOptionId;
+
             if (isLabelCorrect) {
                 btn.classList.add('correct');
-            } else if (label === selectedOptionId && !isCorrect) {
+            } else if (isLabelSelected) {
                 btn.classList.add('incorrect');
             }
         });
